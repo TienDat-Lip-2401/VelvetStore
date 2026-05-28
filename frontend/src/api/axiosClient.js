@@ -1,7 +1,23 @@
 import axios from 'axios';
 
+let apiURL = process.env.REACT_APP_API_URL;
+
+if (!apiURL) {
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    // Nếu chạy online (Vercel) nhưng chưa cấu hình ENV, tự động trỏ về Render BE
+    apiURL = 'https://velvetstore.onrender.com/api';
+  } else {
+    // Nếu chạy local, trỏ về local BE
+    apiURL = 'http://localhost:5000/api';
+  }
+}
+
+if (apiURL && !apiURL.endsWith('/api') && !apiURL.endsWith('/api/')) {
+  apiURL = apiURL.replace(/\/+$/, '') + '/api';
+}
+
 const axiosClient = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: apiURL,
   headers: {
     'Content-Type': 'application/json'
   }

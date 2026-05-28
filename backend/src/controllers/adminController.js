@@ -713,9 +713,16 @@ const getAdminProducts = async (req, res) => {
 
     const where = {};
     if (search) {
+      const searchTerms = [
+        { [Op.like]: `${search}%` },
+        { [Op.like]: `% ${search}%` },
+        { [Op.like]: `%-${search}%` },
+        { [Op.like]: `%/${search}%` },
+        { [Op.like]: `%(${search}%` }
+      ];
       where[Op.or] = [
-        { name: { [Op.like]: `%${search}%` } },
-        { brand: { [Op.like]: `%${search}%` } }
+        { name: { [Op.or]: searchTerms } },
+        { brand: { [Op.or]: searchTerms } }
       ];
     }
 

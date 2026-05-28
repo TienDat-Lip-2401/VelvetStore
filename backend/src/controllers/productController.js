@@ -33,10 +33,17 @@ const getAll = async (req, res) => {
     }
 
     if (search) {
+      const searchTerms = [
+        { [Op.like]: `${search}%` },
+        { [Op.like]: `% ${search}%` },
+        { [Op.like]: `%-${search}%` },
+        { [Op.like]: `%/${search}%` },
+        { [Op.like]: `%(${search}%` }
+      ];
       where[Op.or] = [
-        { name: { [Op.like]: `%${search}%` } },
-        { description: { [Op.like]: `%${search}%` } },
-        { brand: { [Op.like]: `%${search}%` } }
+        { name: { [Op.or]: searchTerms } },
+        { description: { [Op.or]: searchTerms } },
+        { brand: { [Op.or]: searchTerms } }
       ];
     }
 

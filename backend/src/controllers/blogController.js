@@ -188,7 +188,14 @@ const getAdminBlogs = async (req, res) => {
     const where = {};
     const search = req.query.search;
     if (search) {
-      where.title = { [Op.like]: `%${search}%` };
+      const searchTerms = [
+        { [Op.like]: `${search}%` },
+        { [Op.like]: `% ${search}%` },
+        { [Op.like]: `%-${search}%` },
+        { [Op.like]: `%/${search}%` },
+        { [Op.like]: `%(${search}%` }
+      ];
+      where.title = { [Op.or]: searchTerms };
     }
 
     const { count, rows: blogs } = await Blog.findAndCountAll({

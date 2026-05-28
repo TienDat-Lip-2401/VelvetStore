@@ -72,6 +72,12 @@ const create = async (req, res) => {
       });
     }
 
+    if (discountType === 'percent' && Number(discountValue) > 100) {
+      return res.status(400).json({
+        message: 'Giá trị giảm giá theo phần trăm không được vượt quá 100%'
+      });
+    }
+
     if (new Date(startDate) >= new Date(endDate)) {
       return res.status(400).json({
         message: 'Ngày kết thúc phải sau ngày bắt đầu'
@@ -137,6 +143,14 @@ const update = async (req, res) => {
     if (discountType && !['percent', 'fixed'].includes(discountType)) {
       return res.status(400).json({
         message: 'Loại giảm giá phải là "percent" (phần trăm) hoặc "fixed" (cố định)'
+      });
+    }
+
+    const finalDiscountType = discountType || voucher.discountType;
+    const finalDiscountValue = discountValue !== undefined ? discountValue : voucher.discountValue;
+    if (finalDiscountType === 'percent' && Number(finalDiscountValue) > 100) {
+      return res.status(400).json({
+        message: 'Giá trị giảm giá theo phần trăm không được vượt quá 100%'
       });
     }
 

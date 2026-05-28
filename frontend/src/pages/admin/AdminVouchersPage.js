@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { FiPlus, FiEdit2, FiTrash2, FiX, FiSearch } from 'react-icons/fi';
 import { adminAPI } from '../../api';
 import { formatPrice } from '../../utils/formatPrice';
+import { useModal } from '../../context/ModalContext';
 import './AdminVouchersPage.css';
 
 const AdminVouchersPage = () => {
+  const { showModal: showWarning } = useModal();
   const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -85,15 +87,38 @@ const AdminVouchersPage = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    setForm((prev) => {
+      let newValue = type === 'checkbox' ? checked : value;
+      if (name === 'type' && value === 'percent' && Number(prev.value) > 100) {
+        return {
+          ...prev,
+          type: value,
+          value: 100
+        };
+      }
+      if (name === 'value' && prev.type === 'percent' && Number(value) > 100) {
+        newValue = 100;
+      }
+      return {
+        ...prev,
+        [name]: newValue,
+      };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.code || !form.value) return;
+
+    if (form.type === 'percent' && Number(form.value) > 100) {
+      showWarning('Giá trị giảm giá theo phần trăm không được vượt quá 100%', 'warning');
+      return;
+    }
+
+    if (form.startDate && form.endDate && new Date(form.startDate) >= new Date(form.endDate)) {
+      showWarning('Ngày kết thúc phải sau ngày bắt đầu!', 'warning');
+      return;
+    }
 
     try {
       setSaving(true);
@@ -118,7 +143,7 @@ const AdminVouchersPage = () => {
       setShowModal(false);
       fetchVouchers();
     } catch (err) {
-      alert('Lỗi khi lưu voucher: ' + (err.message || 'Đã có lỗi xảy ra'));
+      showWarning(err.message || 'Đã có lỗi xảy ra', 'danger', 'Lỗi lưu voucher');
     } finally {
       setSaving(false);
     }
@@ -130,7 +155,7 @@ const AdminVouchersPage = () => {
       await adminAPI.deleteVoucher(voucher.id);
       fetchVouchers();
     } catch (err) {
-      alert('Lỗi khi xóa voucher');
+      showWarning('Đã xảy ra lỗi khi xóa voucher.', 'danger', 'Lỗi xóa voucher');
     }
   };
 
@@ -291,6 +316,7 @@ const AdminVouchersPage = () => {
                     onChange={handleChange}
                     required
                     min={0}
+                    max={form.type === 'percent' ? 100 : undefined}
                     placeholder={form.type === 'percent' ? 'VD: 20' : 'VD: 50000'}
                   />
                 </div>

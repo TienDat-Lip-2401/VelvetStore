@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ModalProvider } from './context/ModalContext';
 
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -77,8 +78,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <CartProvider>
-          <Routes>
+        <ModalProvider>
+          <CartProvider>
+            <Routes>
             {/* Admin routes */}
             <Route path="/admin" element={<AdminRoute />}>
               <Route index element={<DashboardPage />} />
@@ -127,8 +129,9 @@ function App() {
                 <Route path="/yeu-thich" element={<WishlistPage />} />
               </Route>
             </Route>
-          </Routes>
-        </CartProvider>
+            </Routes>
+          </CartProvider>
+        </ModalProvider>
       </AuthProvider>
     </Router>
   );

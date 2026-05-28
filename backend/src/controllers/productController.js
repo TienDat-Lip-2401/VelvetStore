@@ -24,7 +24,12 @@ const getAll = async (req, res) => {
     const where = { isActive: true };
 
     if (categoryId) {
-      where.categoryId = categoryId;
+      const childCategories = await Category.findAll({
+        where: { parentId: categoryId, isActive: true },
+        attributes: ['id']
+      });
+      const categoryIds = [parseInt(categoryId), ...childCategories.map(c => c.id)];
+      where.categoryId = { [Op.in]: categoryIds };
     }
 
     if (search) {
@@ -46,7 +51,25 @@ const getAll = async (req, res) => {
     // Lọc theo màu sắc hoặc kích thước qua biến thể
     const variantWhere = {};
     if (color) {
-      variantWhere.color = color;
+      const colorMap = {
+        'den': { [Op.like]: '%Đen%' },
+        'trang': { [Op.like]: '%Trắng%' },
+        'do': { [Op.like]: '%Đỏ%' },
+        'xanh-duong': { [Op.or]: [{ [Op.like]: '%Xanh dương%' }, { [Op.like]: '%Xanh nhạt%' }, { [Op.like]: '%Xanh đậm%' }, { [Op.like]: '%Xanh navy%' }, { [Op.eq]: 'Xanh' }] },
+        'xanh-la': { [Op.or]: [{ [Op.like]: '%Xanh lá%' }, { [Op.like]: '%Xanh rêu%' }] },
+        'vang': { [Op.like]: '%Vàng%' },
+        'hong': { [Op.like]: '%Hồng%' },
+        'nau': { [Op.like]: '%Nâu%' },
+        'xam': { [Op.like]: '%Xám%' },
+        'be': { [Op.like]: '%Be%' }
+      };
+
+      const mappedCondition = colorMap[color.toLowerCase()];
+      if (mappedCondition) {
+        variantWhere.color = mappedCondition;
+      } else {
+        variantWhere.color = { [Op.like]: `%${color}%` };
+      }
     }
     if (size) {
       variantWhere.size = size;

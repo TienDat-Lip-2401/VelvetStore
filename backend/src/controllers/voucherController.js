@@ -7,8 +7,18 @@ const getAll = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
+    const search = req.query.search;
+
+    const where = {};
+    if (search) {
+      where[Op.or] = [
+        { code: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } }
+      ];
+    }
 
     const { count, rows: vouchers } = await Voucher.findAndCountAll({
+      where,
       order: [['createdAt', 'DESC']],
       limit,
       offset

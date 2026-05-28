@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { FiSearch, FiX, FiChevronDown, FiChevronUp, FiFilter } from 'react-icons/fi';
 import { adminAPI } from '../../api';
 import { formatPrice } from '../../utils/formatPrice';
+import { useModal } from '../../context/ModalContext';
 import './AdminOrdersPage.css';
 
 const statusLabels = {
@@ -15,11 +16,21 @@ const statusLabels = {
 const statusOptions = ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'];
 
 const AdminOrdersPage = () => {
+  const { showModal: showWarning } = useModal();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [totalPages, setTotalPages] = useState(1);
   const [expandedId, setExpandedId] = useState(null);
   const [updating, setUpdating] = useState(null);
@@ -54,7 +65,7 @@ const AdminOrdersPage = () => {
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
       );
     } catch (err) {
-      alert('Lỗi khi cập nhật trạng thái đơn hàng');
+      showWarning('Lỗi khi cập nhật trạng thái đơn hàng', 'danger');
     } finally {
       setUpdating(null);
     }
@@ -69,7 +80,7 @@ const AdminOrdersPage = () => {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  if (loading && orders.length === 0) {
+  if (loading && orders.length === 0 && !searchQuery) {
     return (
       <div className="admin-loading">
         <div className="spinner" />
@@ -90,11 +101,11 @@ const AdminOrdersPage = () => {
           <input
             type="text"
             placeholder="Tìm mã đơn, tên khách hàng..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {search && (
-            <button type="button" className="clear-search" onClick={() => { setSearch(''); setPage(1); }}>
+          {searchQuery && (
+            <button type="button" className="clear-search" onClick={() => { setSearchQuery(''); setSearch(''); setPage(1); }}>
               <FiX />
             </button>
           )}

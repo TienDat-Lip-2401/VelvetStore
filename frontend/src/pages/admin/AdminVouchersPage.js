@@ -10,7 +10,15 @@ const AdminVouchersPage = () => {
   const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState(null);
@@ -169,7 +177,7 @@ const AdminVouchersPage = () => {
     setPage(1);
   };
 
-  if (loading && vouchers.length === 0) {
+  if (loading && vouchers.length === 0 && !searchQuery) {
     return (
       <div className="admin-loading">
         <div className="spinner" />
@@ -193,11 +201,11 @@ const AdminVouchersPage = () => {
           <input
             type="text"
             placeholder="Tìm mã giảm giá..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {search && (
-            <button type="button" className="clear-search" onClick={() => { setSearch(''); setPage(1); }}>
+          {searchQuery && (
+            <button type="button" className="clear-search" onClick={() => { setSearchQuery(''); setSearch(''); setPage(1); }}>
               <FiX />
             </button>
           )}

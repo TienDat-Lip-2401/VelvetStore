@@ -1,13 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FiSearch, FiX, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 import { adminAPI } from '../../api';
+import { useModal } from '../../context/ModalContext';
 import './AdminCustomersPage.css';
 
 const AdminCustomersPage = () => {
+  const { showModal: showWarning } = useModal();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [totalPages, setTotalPages] = useState(1);
   const [toggling, setToggling] = useState(null);
 
@@ -40,7 +51,7 @@ const AdminCustomersPage = () => {
         )
       );
     } catch (err) {
-      alert('Lỗi khi thay đổi trạng thái tài khoản');
+      showWarning('Lỗi khi thay đổi trạng thái tài khoản', 'danger');
     } finally {
       setToggling(null);
     }
@@ -55,7 +66,7 @@ const AdminCustomersPage = () => {
     return customer.isActive !== false;
   };
 
-  if (loading && customers.length === 0) {
+  if (loading && customers.length === 0 && !searchQuery) {
     return (
       <div className="admin-loading">
         <div className="spinner" />
@@ -76,11 +87,11 @@ const AdminCustomersPage = () => {
           <input
             type="text"
             placeholder="Tìm theo tên, email, SĐT..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {search && (
-            <button type="button" className="clear-search" onClick={() => { setSearch(''); setPage(1); }}>
+          {searchQuery && (
+            <button type="button" className="clear-search" onClick={() => { setSearchQuery(''); setSearch(''); setPage(1); }}>
               <FiX />
             </button>
           )}

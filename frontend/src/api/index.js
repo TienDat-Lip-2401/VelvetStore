@@ -86,6 +86,11 @@ export const contactAPI = {
   create: (data) => axiosClient.post('/contacts', data),
 };
 
+// Chatbot
+export const chatbotAPI = {
+  query: (data) => axiosClient.post('/chatbot/query', data),
+};
+
 // Admin APIs
 export const adminAPI = {
   // Dashboard

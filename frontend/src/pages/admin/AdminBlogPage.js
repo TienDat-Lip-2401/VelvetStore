@@ -1,13 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiX, FiFileText, FiUpload } from 'react-icons/fi';
 import { adminAPI } from '../../api';
+import { useModal } from '../../context/ModalContext';
 import './AdminBlogPage.css';
 
 const AdminBlogPage = () => {
+  const { showModal: showWarning } = useModal();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
@@ -73,7 +84,7 @@ const AdminBlogPage = () => {
       const res = await adminAPI.uploadImage(formData);
       setForm((prev) => ({ ...prev, thumbnail: res.url }));
     } catch (err) {
-      alert('Lỗi khi tải ảnh lên: ' + (err.message || 'Đã có lỗi xảy ra'));
+      showWarning('Lỗi khi tải ảnh lên: ' + (err.message || 'Đã có lỗi xảy ra'), 'danger');
     } finally {
       setUploadingThumb(false);
       e.target.value = '';
@@ -108,7 +119,7 @@ const AdminBlogPage = () => {
       setShowModal(false);
       fetchPosts();
     } catch (err) {
-      alert('Lỗi khi lưu bài viết: ' + (err.message || 'Đã có lỗi xảy ra'));
+      showWarning('Lỗi khi lưu bài viết: ' + (err.message || 'Đã có lỗi xảy ra'), 'danger');
     } finally {
       setSaving(false);
     }
@@ -120,7 +131,7 @@ const AdminBlogPage = () => {
       await adminAPI.deleteBlog(post.id);
       fetchPosts();
     } catch (err) {
-      alert('Lỗi khi xóa bài viết');
+      showWarning('Lỗi khi xóa bài viết', 'danger');
     }
   };
 
@@ -129,7 +140,7 @@ const AdminBlogPage = () => {
     setPage(1);
   };
 
-  if (loading && posts.length === 0) {
+  if (loading && posts.length === 0 && !searchQuery) {
     return (
       <div className="admin-loading">
         <div className="spinner" />
@@ -153,11 +164,11 @@ const AdminBlogPage = () => {
           <input
             type="text"
             placeholder="Tìm bài viết..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {search && (
-            <button type="button" className="clear-search" onClick={() => { setSearch(''); setPage(1); }}>
+          {searchQuery && (
+            <button type="button" className="clear-search" onClick={() => { setSearchQuery(''); setSearch(''); setPage(1); }}>
               <FiX />
             </button>
           )}

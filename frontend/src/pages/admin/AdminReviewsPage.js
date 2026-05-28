@@ -1,13 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FiTrash2, FiEye, FiEyeOff, FiSearch, FiX, FiStar } from 'react-icons/fi';
 import { adminAPI } from '../../api';
+import { useModal } from '../../context/ModalContext';
 import './AdminReviewsPage.css';
 
 const AdminReviewsPage = () => {
+  const { showModal: showWarning } = useModal();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [totalPages, setTotalPages] = useState(1);
   const [toggling, setToggling] = useState(null);
 
@@ -40,7 +51,7 @@ const AdminReviewsPage = () => {
         )
       );
     } catch (err) {
-      alert('Lỗi khi thay đổi trạng thái hiển thị');
+      showWarning('Lỗi khi thay đổi trạng thái hiển thị', 'danger');
     } finally {
       setToggling(null);
     }
@@ -52,7 +63,7 @@ const AdminReviewsPage = () => {
       await adminAPI.deleteReview(review.id);
       fetchReviews();
     } catch (err) {
-      alert('Lỗi khi xóa đánh giá');
+      showWarning('Lỗi khi xóa đánh giá', 'danger');
     }
   };
 
@@ -74,7 +85,7 @@ const AdminReviewsPage = () => {
     return review.isVisible !== false && !review.isHidden;
   };
 
-  if (loading && reviews.length === 0) {
+  if (loading && reviews.length === 0 && !searchQuery) {
     return (
       <div className="admin-loading">
         <div className="spinner" />
@@ -95,11 +106,11 @@ const AdminReviewsPage = () => {
           <input
             type="text"
             placeholder="Tìm theo sản phẩm, khách hàng..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {search && (
-            <button type="button" className="clear-search" onClick={() => { setSearch(''); setPage(1); }}>
+          {searchQuery && (
+            <button type="button" className="clear-search" onClick={() => { setSearchQuery(''); setSearch(''); setPage(1); }}>
               <FiX />
             </button>
           )}

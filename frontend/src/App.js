@@ -2,9 +2,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ModalProvider } from './context/ModalContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import ChatBot from './components/common/ChatBot';
 
 // Public pages
 import HomePage from './pages/HomePage';
@@ -71,6 +74,7 @@ const MainLayout = () => (
       <Outlet />
     </main>
     <Footer />
+    <ChatBot />
   </>
 );
 
@@ -130,6 +134,7 @@ function App() {
               </Route>
             </Route>
             </Routes>
+            <ToastContainer position="top-right" autoClose={3000} />
           </CartProvider>
         </ModalProvider>
       </AuthProvider>

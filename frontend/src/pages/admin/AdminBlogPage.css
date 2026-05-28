@@ -1,0 +1,138 @@
+/* Blog Page */
+.admin-blog-page .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.admin-blog-page .page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.blog-thumb {
+  width: 60px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.blog-thumb-empty {
+  width: 60px;
+  height: 40px;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.blog-title-cell {
+  font-weight: 500;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blog-excerpt-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.blog-date {
+  white-space: nowrap;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+}
+
+.blog-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.blog-status.status-published {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.blog-status.status-draft {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.blog-thumb-upload {
+  margin-top: 4px;
+}
+
+.blog-thumb-preview {
+  position: relative;
+  display: inline-block;
+  width: 160px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+}
+
+.blog-thumb-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blog-thumb-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.blog-thumb-remove:hover {
+  background: var(--danger);
+}
+
+.blog-thumb-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 160px;
+  height: 100px;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.blog-thumb-picker:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.modal-lg {
+  max-width: 750px;
+}

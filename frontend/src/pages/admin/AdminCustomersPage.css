@@ -1,0 +1,73 @@
+/* Customers Page */
+.admin-customers-page .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.admin-customers-page .page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.customer-name {
+  font-weight: 500;
+}
+
+.orders-count {
+  text-align: center;
+  font-weight: 600;
+}
+
+.customer-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.customer-status.active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.customer-status.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Toggle Button */
+.btn-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: var(--transition);
+  color: var(--text-muted);
+}
+
+.btn-toggle svg {
+  font-size: 1.1rem;
+}
+
+.btn-toggle.active {
+  color: #10b981;
+}
+
+.btn-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

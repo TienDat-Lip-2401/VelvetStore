@@ -1,0 +1,27 @@
+/* Admin Brand/Material Page */
+.admin-brand-material-page .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.admin-brand-material-page .page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.admin-brand-material-page .item-name {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.admin-brand-material-page .item-date {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.admin-brand-material-page .text-center {
+  text-align: center;
+}

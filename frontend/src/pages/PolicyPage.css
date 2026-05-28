@@ -1,0 +1,149 @@
+/* Policy Page */
+.policy-page {
+  padding-bottom: 60px;
+}
+
+.policy-breadcrumb {
+  padding: 16px 0;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 40px;
+}
+
+.policy-breadcrumb .container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.policy-breadcrumb a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.policy-breadcrumb a:hover {
+  color: var(--primary);
+}
+
+.policy-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.policy-page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.policy-page-subtitle {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Tabs */
+.policy-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+  border-bottom: 2px solid var(--border-light);
+  padding-bottom: 0;
+}
+
+.policy-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: var(--transition);
+}
+
+.policy-tab:hover {
+  color: var(--primary);
+}
+
+.policy-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Content */
+.policy-content {
+  max-width: 800px;
+}
+
+.policy-section h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.policy-section h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 28px 0 12px;
+}
+
+.policy-section p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+.policy-section ul,
+.policy-section ol {
+  padding-left: 24px;
+  margin-bottom: 16px;
+}
+
+.policy-section li {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.policy-section strong {
+  color: var(--text);
+}
+
+@media (max-width: 768px) {
+  .policy-tabs {
+    flex-direction: column;
+    border-bottom: none;
+    gap: 4px;
+  }
+
+  .policy-tab {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    margin-bottom: 0;
+    border-radius: var(--radius);
+  }
+
+  .policy-tab.active {
+    border-bottom: none;
+    border-left-color: var(--primary);
+    background-color: var(--bg-secondary);
+  }
+
+  .policy-page-title {
+    font-size: 26px;
+  }
+}

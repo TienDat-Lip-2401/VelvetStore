@@ -1,0 +1,85 @@
+/* Reviews Page */
+.admin-reviews-page .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.admin-reviews-page .page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.review-product {
+  font-weight: 500;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.review-content-cell {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.review-date {
+  white-space: nowrap;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+}
+
+/* Stars */
+.stars-row {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  font-size: 0.9rem;
+  color: #d1d5db;
+}
+
+.star.filled {
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+
+/* Visibility */
+.visibility-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.visibility-badge.visible {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.visibility-badge.hidden {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.row-hidden {
+  opacity: 0.6;
+}
+
+.btn-hide:hover {
+  border-color: #f59e0b !important;
+  color: #f59e0b !important;
+}
+
+.btn-show:hover {
+  border-color: #10b981 !important;
+  color: #10b981 !important;
+}

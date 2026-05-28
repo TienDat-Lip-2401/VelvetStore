@@ -1,0 +1,141 @@
+/* Admin Layout */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-secondary);
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 260px;
+  background-color: #1a1f2e;
+  color: #c4c9d4;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.admin-sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.admin-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background-color: var(--primary);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+/* Navigation */
+.admin-nav {
+  flex: 1;
+  padding: 12px 0;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  font-size: 14px;
+  color: #9ca3b4;
+  text-decoration: none;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.admin-nav-link:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.admin-nav-link.active {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-left-color: var(--primary);
+}
+
+/* Footer */
+.admin-sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-user-info {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.admin-user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.admin-user-role {
+  font-size: 12px;
+  color: #7a8199;
+}
+
+.admin-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: #9ca3b4;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.admin-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Main Content */
+.admin-main {
+  flex: 1;
+  margin-left: 260px;
+  padding: 32px;
+  min-height: 100vh;
+  width: calc(100% - 260px);
+}
+
+.admin-main > * {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .admin-sidebar {
+    width: 220px;
+  }
+
+  .admin-main {
+    margin-left: 220px;
+    padding: 20px;
+    width: calc(100% - 220px);
+  }
+}

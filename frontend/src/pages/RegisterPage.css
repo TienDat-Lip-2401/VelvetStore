@@ -1,0 +1,12 @@
+.register-page {
+  min-height: calc(100vh - 140px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  background-color: var(--bg-secondary);
+}
+
+.register-page .auth-card {
+  max-width: 460px;
+}

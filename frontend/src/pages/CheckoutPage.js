@@ -18,7 +18,7 @@ const STEPS = [
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { cartItems, clearCart } = useCart();
+  const { cartItems, clearCart, fetchCart } = useCart();
   const { user } = useAuth();
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -173,6 +173,9 @@ const CheckoutPage = () => {
         } catch (err) {
           toast.error('Lỗi kết nối cổng thanh toán VNPay');
         }
+        // Đơn đã được tạo và giỏ hàng đã bị backend xóa -> đưa khách về trang đơn hàng
+        await fetchCart();
+        navigate('/don-hang', { state: { orderId: order.id } });
       } else {
         await clearCart();
         toast.success('Đặt hàng thành công!');
@@ -181,7 +184,8 @@ const CheckoutPage = () => {
         });
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
+      // axiosClient reject với error.response.data nên message nằm ở err.message
+      toast.error(err?.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }

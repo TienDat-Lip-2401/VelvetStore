@@ -12,6 +12,12 @@ const {
   sequelize
 } = require('../models');
 
+// Phí vận chuyển: miễn phí cho đơn (tạm tính) trên ngưỡng, ngược lại tính phí cố định.
+// Phải khớp với cách tính hiển thị ở frontend (CartPage / CheckoutPage).
+const FREE_SHIPPING_THRESHOLD = 500000;
+const SHIPPING_FEE = 30000;
+const VALID_PAYMENT_METHODS = ['cod', 'vnpay'];
+
 // POST / - Tạo đơn hàng
 const createOrder = async (req, res) => {
   const transaction = await sequelize.transaction();
@@ -22,10 +28,18 @@ const createOrder = async (req, res) => {
       fullName,
       phone,
       address,
-      paymentMethod = 'cod',
       note,
-      voucherId
+      voucherId,
+      voucherCode
     } = req.body;
+
+    const paymentMethod = String(req.body.paymentMethod || 'cod').toLowerCase();
+    if (!VALID_PAYMENT_METHODS.includes(paymentMethod)) {
+      await transaction.rollback();
+      return res.status(400).json({
+        message: 'Phương thức thanh toán không hợp lệ'
+      });
+    }
 
     // Xác định thông tin giao hàng
     let shippingFullName, shippingPhone, shippingAddress;
@@ -143,8 +157,14 @@ const createOrder = async (req, res) => {
     let discount = 0;
     let appliedVoucherId = null;
 
-    if (voucherId) {
-      const voucher = await Voucher.findByPk(voucherId, { transaction });
+    if (voucherId || voucherCode) {
+      const voucher = voucherId
+        ? await Voucher.findByPk(voucherId, { transaction, lock: transaction.LOCK.UPDATE })
+        : await Voucher.findOne({
+            where: { code: String(voucherCode).trim().toUpperCase() },
+            transaction,
+            lock: transaction.LOCK.UPDATE
+          });
 
       if (!voucher) {
         await transaction.rollback();
@@ -203,7 +223,7 @@ const createOrder = async (req, res) => {
       );
     }
 
-    const shippingFee = 0;
+    const shippingFee = subtotal > FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const total = subtotal - discount + shippingFee;
     const orderCode = 'VS' + Date.now();
 
@@ -221,7 +241,7 @@ const createOrder = async (req, res) => {
         discount,
         total,
         paymentMethod,
-        paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending',
+        paymentStatus: 'pending',
         status: 'pending',
         voucherId: appliedVoucherId
       },

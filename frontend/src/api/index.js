@@ -46,6 +46,8 @@ export const orderAPI = {
 // Payment
 export const paymentAPI = {
   createVnpayUrl: (data) => axiosClient.post('/payment/create-vnpay-url', data),
+  // Truyền nguyên query string VNPay trả về (đã encode) để backend xác minh chữ ký
+  verifyVnpayReturn: (rawQueryString) => axiosClient.get(`/payment/vnpay-return${rawQueryString}`),
 };
 
 // Address

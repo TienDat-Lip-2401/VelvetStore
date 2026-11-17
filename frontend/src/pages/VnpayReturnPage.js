@@ -1,29 +1,45 @@
-import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { FiCheckCircle, FiXCircle, FiPackage, FiArrowRight } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
+import { paymentAPI } from '../api';
 import './VnpayReturnPage.css';
 
 const VnpayReturnPage = () => {
   const [searchParams] = useSearchParams();
-  const { clearCart } = useCart();
+  const location = useLocation();
+  const { fetchCart } = useCart();
 
-  const responseCode = searchParams.get('vnp_ResponseCode');
   const txnRef = searchParams.get('vnp_TxnRef');
   const amount = searchParams.get('vnp_Amount');
   const orderInfo = searchParams.get('vnp_OrderInfo');
   const transactionNo = searchParams.get('vnp_TransactionNo');
 
-  const isSuccess = responseCode === '00';
-
-  const [cleared, setCleared] = useState(false);
+  // Kết quả phải lấy từ backend (đã xác minh chữ ký + số tiền), không tin query string
+  const [verifying, setVerifying] = useState(true);
+  const [responseCode, setResponseCode] = useState(null);
+  const [verifyError, setVerifyError] = useState('');
+  const verifiedRef = useRef(false);
 
   useEffect(() => {
-    if (isSuccess && !cleared) {
-      clearCart().catch(() => {});
-      setCleared(true);
-    }
-  }, [isSuccess, cleared]);
+    if (verifiedRef.current) return;
+    verifiedRef.current = true;
+
+    paymentAPI.verifyVnpayReturn(location.search)
+      .then((res) => setResponseCode(res.code))
+      .catch((err) => {
+        setResponseCode(err?.code || '99');
+        setVerifyError(err?.message || '');
+      })
+      .finally(() => {
+        setVerifying(false);
+        // Giỏ hàng đã được backend xóa khi tạo đơn -> đồng bộ lại số lượng trên header
+        fetchCart().catch(() => {});
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const isSuccess = responseCode === '00';
 
   const getErrorMessage = (code) => {
     const errors = {
@@ -51,7 +67,12 @@ const VnpayReturnPage = () => {
     <div className="vnpay-return-page">
       <div className="container">
         <div className="vnpay-return-card card">
-          {isSuccess ? (
+          {verifying ? (
+            <div className="loading-spinner">
+              <div className="spinner" />
+              <p className="vnpay-message">Đang xác minh kết quả thanh toán...</p>
+            </div>
+          ) : isSuccess ? (
             <>
               <div className="vnpay-icon vnpay-icon-success">
                 <FiCheckCircle size={56} />
@@ -106,7 +127,7 @@ const VnpayReturnPage = () => {
               </div>
               <h1 className="vnpay-heading">Thanh toán thất bại</h1>
               <p className="vnpay-message">
-                {getErrorMessage(responseCode)}
+                {verifyError || getErrorMessage(responseCode)}
               </p>
 
               {txnRef && (

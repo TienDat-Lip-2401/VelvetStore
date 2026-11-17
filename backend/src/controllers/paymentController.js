@@ -130,7 +130,36 @@ const vnpayReturn = async (req, res) => {
       });
     }
 
-    if (responseCode === '00') {
+    const orderSummary = (paymentStatus) => ({
+      id: order.id,
+      orderCode: order.orderCode,
+      total: order.total,
+      paymentStatus
+    });
+
+    // Số tiền VNPay trả về phải khớp với tổng tiền đơn hàng
+    const expectedAmount = Math.round(Number(order.total) * 100);
+    if (Number(vnpParams.vnp_Amount) !== expectedAmount) {
+      return res.status(400).json({
+        message: 'Số tiền thanh toán không khớp với đơn hàng',
+        code: '04'
+      });
+    }
+
+    // Đơn đã được ghi nhận thanh toán trước đó (reload trang / gọi lại) -> không ghi đè
+    if (order.paymentStatus === 'paid') {
+      return res.json({
+        message: 'Thanh toán thành công',
+        code: '00',
+        order: orderSummary('paid')
+      });
+    }
+
+    const transactionStatus = vnpParams.vnp_TransactionStatus;
+    const isSuccess = responseCode === '00' &&
+      (transactionStatus === undefined || transactionStatus === '00');
+
+    if (isSuccess) {
       await order.update({
         paymentStatus: 'paid',
         vnpayTransactionId: transactionId
@@ -139,29 +168,17 @@ const vnpayReturn = async (req, res) => {
       return res.json({
         message: 'Thanh toán thành công',
         code: '00',
-        order: {
-          id: order.id,
-          orderCode: order.orderCode,
-          total: order.total,
-          paymentStatus: 'paid'
-        }
-      });
-    } else {
-      await order.update({
-        paymentStatus: 'failed'
-      });
-
-      return res.json({
-        message: 'Thanh toán thất bại',
-        code: responseCode,
-        order: {
-          id: order.id,
-          orderCode: order.orderCode,
-          total: order.total,
-          paymentStatus: 'failed'
-        }
+        order: orderSummary('paid')
       });
     }
+
+    await order.update({ paymentStatus: 'failed' });
+
+    return res.json({
+      message: 'Thanh toán thất bại',
+      code: responseCode,
+      order: orderSummary('failed')
+    });
   } catch (error) {
     console.error('VNPay return error:', error);
     res.status(500).json({

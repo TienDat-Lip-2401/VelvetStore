@@ -1,5 +1,7 @@
 const { Product, Category, ProductImage, ProductVariant, Review, User } = require('../models');
-const { Op } = require('sequelize');
+const { Op, fn, col, where: sqlWhere } = require('sequelize');
+
+const effectivePrice = fn('COALESCE', col('Product.salePrice'), col('Product.price'));
 
 // Lấy danh sách sản phẩm với phân trang, lọc, sắp xếp
 const getAll = async (req, res) => {
@@ -47,12 +49,12 @@ const getAll = async (req, res) => {
       ];
     }
 
-    if (minPrice) {
-      where.price = { ...where.price, [Op.gte]: parseFloat(minPrice) };
-    }
-
-    if (maxPrice) {
-      where.price = { ...where.price, [Op.lte]: parseFloat(maxPrice) };
+    // Lọc theo giá khách thực trả: giá sale nếu có, ngược lại giá gốc
+    const priceRange = {};
+    if (minPrice) priceRange[Op.gte] = parseFloat(minPrice);
+    if (maxPrice) priceRange[Op.lte] = parseFloat(maxPrice);
+    if (minPrice || maxPrice) {
+      where[Op.and] = [sqlWhere(effectivePrice, priceRange)];
     }
 
     // Lọc theo màu sắc hoặc kích thước qua biến thể
@@ -88,10 +90,10 @@ const getAll = async (req, res) => {
     if (sort) {
       switch (sort) {
         case 'price_asc':
-          order = [['price', 'ASC']];
+          order = [[effectivePrice, 'ASC']];
           break;
         case 'price_desc':
-          order = [['price', 'DESC']];
+          order = [[effectivePrice, 'DESC']];
           break;
         case 'name_asc':
           order = [['name', 'ASC']];

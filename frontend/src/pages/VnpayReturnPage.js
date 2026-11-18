@@ -129,6 +129,11 @@ const VnpayReturnPage = () => {
               <p className="vnpay-message">
                 {verifyError || getErrorMessage(responseCode)}
               </p>
+              {!verifyError && (
+                <p className="vnpay-message">
+                  Đơn hàng đã được hủy và sản phẩm đã được trả lại giỏ hàng để bạn đặt lại.
+                </p>
+              )}
 
               {txnRef && (
                 <div className="vnpay-details">

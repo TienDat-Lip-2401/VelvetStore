@@ -14,6 +14,9 @@ const statusLabels = {
 };
 
 const statusOptions = ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'];
+// Trạng thái chỉ đi tiến (backend cũng chặn), nên khóa các lựa chọn lùi về trước
+const isBackwardStatus = (current, next) =>
+  next !== 'cancelled' && statusOptions.indexOf(next) < statusOptions.indexOf(current);
 
 const AdminOrdersPage = () => {
   const { showModal: showWarning } = useModal();
@@ -65,7 +68,7 @@ const AdminOrdersPage = () => {
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
       );
     } catch (err) {
-      showWarning('Lỗi khi cập nhật trạng thái đơn hàng', 'danger');
+      showWarning(err?.message || 'Lỗi khi cập nhật trạng thái đơn hàng', 'danger');
     } finally {
       setUpdating(null);
     }
@@ -157,7 +160,9 @@ const AdminOrdersPage = () => {
                         disabled={updating === order.id || order.status === 'cancelled' || order.status === 'delivered'}
                       >
                         {statusOptions.map((s) => (
-                          <option key={s} value={s}>{statusLabels[s]}</option>
+                          <option key={s} value={s} disabled={isBackwardStatus(order.status, s)}>
+                            {statusLabels[s]}
+                          </option>
                         ))}
                       </select>
                     </td>

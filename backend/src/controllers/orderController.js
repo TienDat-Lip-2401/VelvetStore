@@ -11,12 +11,22 @@ const {
   Voucher,
   sequelize
 } = require('../models');
+const { restoreOrderInventory } = require('../utils/restoreOrderInventory');
 
 // Phí vận chuyển: miễn phí cho đơn (tạm tính) trên ngưỡng, ngược lại tính phí cố định.
 // Phải khớp với cách tính hiển thị ở frontend (CartPage / CheckoutPage).
 const FREE_SHIPPING_THRESHOLD = 500000;
 const SHIPPING_FEE = 30000;
 const VALID_PAYMENT_METHODS = ['cod', 'vnpay'];
+
+// Đơn chỉ được đi tiến theo luồng; đã giao hoặc đã hủy thì không đổi nữa
+const ALLOWED_STATUS_TRANSITIONS = {
+  pending: ['confirmed', 'shipping', 'delivered', 'cancelled'],
+  confirmed: ['shipping', 'delivered', 'cancelled'],
+  shipping: ['delivered', 'cancelled'],
+  delivered: [],
+  cancelled: []
+};
 
 // POST / - Tạo đơn hàng
 const createOrder = async (req, res) => {
@@ -432,7 +442,8 @@ const cancelOrder = async (req, res) => {
           as: 'items'
         }
       ],
-      transaction
+      transaction,
+      lock: transaction.LOCK.UPDATE
     });
 
     if (!order) {
@@ -449,29 +460,7 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // Hoàn lại tồn kho
-    for (const item of order.items) {
-      await ProductVariant.update(
-        { stock: sequelize.literal(`stock + ${item.quantity}`) },
-        { where: { id: item.variantId }, transaction }
-      );
-
-      const variant = await ProductVariant.findByPk(item.variantId, { transaction });
-      if (variant) {
-        await Product.update(
-          { totalSold: sequelize.literal(`GREATEST(totalSold - ${item.quantity}, 0)`) },
-          { where: { id: variant.productId }, transaction }
-        );
-      }
-    }
-
-    // Hoàn lại lượt sử dụng voucher
-    if (order.voucherId) {
-      await Voucher.update(
-        { usedCount: sequelize.literal('GREATEST(usedCount - 1, 0)') },
-        { where: { id: order.voucherId }, transaction }
-      );
-    }
+    await restoreOrderInventory(order, transaction);
 
     await order.update(
       { status: 'cancelled' },
@@ -564,74 +553,51 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
-    const order = await Order.findByPk(id, {
-      include: [
-        {
-          model: OrderItem,
-          as: 'items'
-        }
-      ]
-    });
-
-    if (!order) {
-      return res.status(404).json({
-        message: 'Không tìm thấy đơn hàng'
-      });
-    }
-
-    if (order.status === 'cancelled') {
-      return res.status(400).json({
-        message: 'Không thể cập nhật đơn hàng đã bị hủy'
-      });
-    }
-
-    if (order.status === 'delivered') {
-      return res.status(400).json({
-        message: 'Không thể cập nhật đơn hàng đã giao thành công'
-      });
-    }
-
-    // Nếu admin hủy đơn -> hoàn kho
-    if (status === 'cancelled') {
-      const transaction = await sequelize.transaction();
-      try {
-        for (const item of order.items) {
-          await ProductVariant.update(
-            { stock: sequelize.literal(`stock + ${item.quantity}`) },
-            { where: { id: item.variantId }, transaction }
-          );
-
-          const variant = await ProductVariant.findByPk(item.variantId, { transaction });
-          if (variant) {
-            await Product.update(
-              { totalSold: sequelize.literal(`GREATEST(totalSold - ${item.quantity}, 0)`) },
-              { where: { id: variant.productId }, transaction }
-            );
+    const transaction = await sequelize.transaction();
+    try {
+      const order = await Order.findByPk(id, {
+        include: [
+          {
+            model: OrderItem,
+            as: 'items'
           }
-        }
+        ],
+        transaction,
+        lock: transaction.LOCK.UPDATE
+      });
 
-        if (order.voucherId) {
-          await Voucher.update(
-            { usedCount: sequelize.literal('GREATEST(usedCount - 1, 0)') },
-            { where: { id: order.voucherId }, transaction }
-          );
-        }
-
-        await order.update({ status: 'cancelled' }, { transaction });
-        await transaction.commit();
-      } catch (err) {
+      if (!order) {
         await transaction.rollback();
-        throw err;
+        return res.status(404).json({
+          message: 'Không tìm thấy đơn hàng'
+        });
       }
-    } else {
+
+      const allowed = ALLOWED_STATUS_TRANSITIONS[order.status] || [];
+      if (!allowed.includes(status)) {
+        await transaction.rollback();
+        return res.status(400).json({
+          message: `Không thể chuyển đơn hàng từ "${order.status}" sang "${status}"`
+        });
+      }
+
       const updateData = { status };
+
+      // Admin hủy đơn -> hoàn kho
+      if (status === 'cancelled') {
+        await restoreOrderInventory(order, transaction);
+      }
 
       // Khi giao thành công và thanh toán COD thì cập nhật paymentStatus
       if (status === 'delivered' && order.paymentMethod === 'cod') {
         updateData.paymentStatus = 'paid';
       }
 
-      await order.update(updateData);
+      await order.update(updateData, { transaction });
+      await transaction.commit();
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
     }
 
     const updatedOrder = await Order.findByPk(id, {

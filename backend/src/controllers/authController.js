@@ -226,7 +226,9 @@ const getProfile = async (req, res) => {
 // PUT /profile
 const updateProfile = async (req, res) => {
   try {
-    const { fullName, phone, avatar } = req.body;
+    const { fullName, phone } = req.body;
+    // Ảnh upload (multipart) đã được multer đẩy lên Cloudinary, req.file.path là URL
+    const avatar = req.file ? req.file.path : req.body.avatar;
     const user = await User.findByPk(req.user.id);
 
     if (!user) {

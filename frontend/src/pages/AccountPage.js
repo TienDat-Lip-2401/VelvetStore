@@ -108,7 +108,7 @@ const ProfileTab = ({ user, updateUser }) => {
 
     setAvatarLoading(true);
     try {
-      const res = await authAPI.updateProfile(fd);
+      const res = await authAPI.uploadAvatar(fd);
       updateUser(res.user);
       toast.success('Cập nhật ảnh đại diện thành công!');
     } catch (error) {

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');
+const { upload } = require('../config/cloudinary');
 const {
   register,
   login,
@@ -19,7 +20,7 @@ router.post('/reset-password', resetPassword);
 
 // Protected routes (require authentication)
 router.get('/profile', auth, getProfile);
-router.put('/profile', auth, updateProfile);
+router.put('/profile', auth, upload.single('avatar'), updateProfile);
 router.put('/change-password', auth, changePassword);
 
 module.exports = router;

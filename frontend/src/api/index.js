@@ -6,6 +6,9 @@ export const authAPI = {
   login: (data) => axiosClient.post('/auth/login', data),
   getProfile: () => axiosClient.get('/auth/profile'),
   updateProfile: (data) => axiosClient.put('/auth/profile', data),
+  uploadAvatar: (formData) => axiosClient.put('/auth/profile', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   changePassword: (data) => axiosClient.put('/auth/change-password', data),
   forgotPassword: (data) => axiosClient.post('/auth/forgot-password', data),
   resetPassword: (data) => axiosClient.post('/auth/reset-password', data),

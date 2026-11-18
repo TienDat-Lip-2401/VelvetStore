@@ -306,7 +306,7 @@ const changePassword = async (req, res) => {
 
     const isMatch = await user.comparePassword(oldPassword);
     if (!isMatch) {
-      return res.status(401).json({
+      return res.status(400).json({
         message: 'Mật khẩu hiện tại không chính xác'
       });
     }

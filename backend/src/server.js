@@ -52,8 +52,10 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log("Kết nối database thành công");
 
-    await sequelize.sync({ alter: true });
-    console.log("Đồng bộ database thành công");
+    // alter có thể tự sửa cấu trúc bảng thật -> chỉ bật khi chủ động đặt DB_SYNC_ALTER=true
+    const alter = process.env.DB_SYNC_ALTER === "true";
+    await sequelize.sync({ alter });
+    console.log(`Đồng bộ database thành công${alter ? " (alter)" : ""}`);
 
     app.listen(PORT, () => {
       console.log(`Server đang chạy tại http://localhost:${PORT}`);

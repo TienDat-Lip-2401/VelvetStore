@@ -258,10 +258,17 @@ const createOrder = async (req, res) => {
 
     // Giảm tồn kho và cập nhật totalSold
     for (const item of cartItems) {
-      await ProductVariant.update(
-        { stock: sequelize.literal(`stock - ${item.quantity}`) },
-        { where: { id: item.variant.id }, transaction }
+      // Trừ kho có điều kiện để 2 đơn đặt cùng lúc không làm tồn kho bị âm
+      const [affected] = await ProductVariant.update(
+        { stock: sequelize.literal(`stock - ${Number(item.quantity)}`) },
+        { where: { id: item.variant.id, stock: { [Op.gte]: item.quantity } }, transaction }
       );
+      if (affected === 0) {
+        await transaction.rollback();
+        return res.status(409).json({
+          message: `Sản phẩm "${item.variant.product.name}" (${item.variant.size}/${item.variant.color}) vừa hết hàng, vui lòng kiểm tra lại giỏ hàng`
+        });
+      }
 
       await Product.update(
         { totalSold: sequelize.literal(`totalSold + ${item.quantity}`) },

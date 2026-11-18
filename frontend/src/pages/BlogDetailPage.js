@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { FiChevronRight, FiCalendar, FiUser, FiArrowLeft } from 'react-icons/fi';
+import DOMPurify from 'dompurify';
 import { blogAPI } from '../api';
 import './BlogDetailPage.css';
 
@@ -99,7 +100,8 @@ const BlogDetailPage = () => {
 
           <div
             className="blog-detail-content"
-            dangerouslySetInnerHTML={{ __html: blog.content }}
+            // Nội dung bài viết là HTML từ DB -> lọc bỏ script/thuộc tính nguy hiểm trước khi render
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content || '') }}
           />
 
           <div className="blog-detail-footer">

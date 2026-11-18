@@ -23,3 +23,11 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Claude Code (local skills, settings, instructions)
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+
+# Playwright CLI artifacts
+.playwright-cli/

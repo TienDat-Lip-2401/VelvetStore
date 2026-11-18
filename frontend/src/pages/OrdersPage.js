@@ -54,7 +54,7 @@ const OrdersPage = () => {
       toast.success('Đã hủy đơn hàng');
       fetchOrders();
     } catch (error) {
-      const message = error.response?.data?.message || 'Không thể hủy đơn hàng';
+      const message = error?.message || 'Không thể hủy đơn hàng';
       toast.error(message);
     }
   };

@@ -24,7 +24,7 @@ const ForgotPasswordPage = () => {
       setSent(true);
       toast.success('Đã gửi email đặt lại mật khẩu!');
     } catch (error) {
-      const message = error.response?.data?.message || 'Không thể gửi email. Vui lòng thử lại.';
+      const message = error?.message || 'Không thể gửi email. Vui lòng thử lại.';
       toast.error(message);
     } finally {
       setLoading(false);

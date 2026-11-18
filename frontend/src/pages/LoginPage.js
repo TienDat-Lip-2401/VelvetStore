@@ -30,7 +30,7 @@ const LoginPage = () => {
       toast.success('Đăng nhập thành công!');
       navigate(from, { replace: true });
     } catch (error) {
-      const message = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
+      const message = error?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
       toast.error(message);
     } finally {
       setLoading(false);

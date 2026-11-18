@@ -48,7 +48,7 @@ const RegisterPage = () => {
       toast.success('Đăng ký thành công!');
       navigate('/');
     } catch (error) {
-      const message = error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
+      const message = error?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
       toast.error(message);
     } finally {
       setLoading(false);

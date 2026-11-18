@@ -31,7 +31,7 @@ const CartPage = () => {
     try {
       await updateQuantity(id, newQty);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Cập nhật số lượng thất bại');
+      toast.error(err?.message || 'Cập nhật số lượng thất bại');
     }
   };
 
@@ -56,7 +56,7 @@ const CartPage = () => {
       setVoucherInfo(res);
       toast.success('Áp dụng mã giảm giá thành công');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Mã giảm giá không hợp lệ');
+      toast.error(err?.message || 'Mã giảm giá không hợp lệ');
       setVoucherDiscount(0);
       setVoucherInfo(null);
     } finally {

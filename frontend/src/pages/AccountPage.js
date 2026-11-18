@@ -525,7 +525,7 @@ const PasswordTab = () => {
       toast.success('Đổi mật khẩu thành công!');
       setFormData({ oldPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
-      const message = error.response?.data?.message || 'Đổi mật khẩu thất bại';
+      const message = error?.message || 'Đổi mật khẩu thất bại';
       toast.error(message);
     } finally {
       setLoading(false);

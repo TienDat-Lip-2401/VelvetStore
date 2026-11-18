@@ -124,7 +124,7 @@ const CheckoutPage = () => {
       setNewAddress({ fullName: '', phone: '', province: '', district: '', ward: '', street: '' });
       toast.success('Thêm địa chỉ mới thành công');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Thêm địa chỉ thất bại');
+      toast.error(err?.message || 'Thêm địa chỉ thất bại');
     }
   };
 

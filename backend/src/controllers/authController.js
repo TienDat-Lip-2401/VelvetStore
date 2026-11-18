@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const { User } = require('../models');
+const { sendMail } = require('../config/mailer');
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -138,9 +139,17 @@ const forgotPassword = async (req, res) => {
 
     await user.update({ resetToken, resetTokenExpiry });
 
-    const resetUrl = `http://localhost:3000/reset-password?token=${resetToken}`;
-    console.log(`[Đặt lại mật khẩu] Email: ${email}`);
-    console.log(`[Đặt lại mật khẩu] URL: ${resetUrl}`);
+    const clientUrl = (process.env.CLIENT_URL || 'http://localhost:3000').replace(/\/+$/, '');
+    const resetUrl = `${clientUrl}/dat-lai-mat-khau?token=${resetToken}`;
+
+    await sendMail({
+      to: user.email,
+      subject: 'VelvetStore - Đặt lại mật khẩu',
+      html: `<p>Xin chào,</p>
+        <p>Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản VelvetStore.</p>
+        <p><a href="${resetUrl}">Bấm vào đây để đặt lại mật khẩu</a> (liên kết có hiệu lực trong 30 phút).</p>
+        <p>Nếu bạn không yêu cầu, hãy bỏ qua email này.</p>`
+    });
 
     res.json({
       message: 'Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu'

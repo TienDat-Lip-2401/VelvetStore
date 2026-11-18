@@ -23,6 +23,7 @@ import PolicyPage from './pages/PolicyPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 // Customer pages (require login)
 import CartPage from './pages/CartPage';
@@ -121,6 +122,7 @@ function App() {
                 <Route path="/dang-nhap" element={<LoginPage />} />
                 <Route path="/dang-ky" element={<RegisterPage />} />
                 <Route path="/quen-mat-khau" element={<ForgotPasswordPage />} />
+                <Route path="/dat-lai-mat-khau" element={<ResetPasswordPage />} />
               </Route>
 
               {/* Protected routes */}

@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Review, Product, User } = require('../models');
+const { Review, Product, User, Order, OrderItem, ProductVariant } = require('../models');
 
 // Hàm tính lại avgRating cho sản phẩm
 const recalcAvgRating = async (productId) => {
@@ -93,10 +93,33 @@ const createReview = async (req, res) => {
       });
     }
 
+    // Chỉ khách đã nhận hàng (đơn "delivered" có chứa sản phẩm này) mới được đánh giá
+    const purchasedItem = await OrderItem.findOne({
+      include: [
+        {
+          model: Order,
+          where: { userId: req.user.id, status: 'delivered', ...(orderId && { id: orderId }) },
+          attributes: ['id']
+        },
+        {
+          model: ProductVariant,
+          as: 'variant',
+          where: { productId },
+          attributes: []
+        }
+      ]
+    });
+
+    if (!purchasedItem) {
+      return res.status(403).json({
+        message: 'Bạn chỉ có thể đánh giá sản phẩm đã mua và nhận hàng thành công'
+      });
+    }
+
     const review = await Review.create({
       userId: req.user.id,
       productId,
-      orderId: orderId || null,
+      orderId: purchasedItem.orderId,
       rating,
       comment: comment || null,
       images: images || null

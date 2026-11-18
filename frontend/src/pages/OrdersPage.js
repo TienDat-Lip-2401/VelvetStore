@@ -204,7 +204,7 @@ const OrdersPage = () => {
                           </div>
                         </div>
 
-                        {order.status === 'pending' && (
+                        {order.status === 'pending' && order.paymentStatus !== 'paid' && (
                           <button
                             className="btn btn-danger-outline"
                             onClick={() => handleCancel(order.id)}

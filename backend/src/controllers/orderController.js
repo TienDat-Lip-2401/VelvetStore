@@ -460,6 +460,14 @@ const cancelOrder = async (req, res) => {
       });
     }
 
+    // Đơn đã trả tiền (VNPay) cần shop xử lý hoàn tiền, khách không tự hủy được
+    if (order.paymentStatus === 'paid') {
+      await transaction.rollback();
+      return res.status(400).json({
+        message: 'Đơn hàng đã thanh toán, vui lòng liên hệ cửa hàng để hủy và hoàn tiền'
+      });
+    }
+
     await restoreOrderInventory(order, transaction);
 
     await order.update(
